@@ -98,7 +98,7 @@ export default function Home() {
                   Todo
                 </button>
 
-                {categories.map((category, index) => (
+                {categories.map((category) => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
