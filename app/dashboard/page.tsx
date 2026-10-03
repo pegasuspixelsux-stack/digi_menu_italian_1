@@ -5,16 +5,19 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth-context';
 import { store, Category } from '@/lib/store';
+import { useRestaurantConfig } from '@/lib/restaurant-config-context';
 import { MenuItem } from '@/lib/types';
 import { MenuItemForm } from '@/components/dashboard/MenuItemForm';
 import { CategoryManager } from '@/components/dashboard/CategoryManager';
+import { RestaurantConfigManager } from '@/components/dashboard/RestaurantConfigManager';
 import Link from 'next/link';
 
-type DashboardTab = 'items' | 'categories';
+type DashboardTab = 'items' | 'categories' | 'settings';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
+  const { config, updateConfig } = useRestaurantConfig();
   const [activeTab, setActiveTab] = useState<DashboardTab>('items');
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -130,6 +133,16 @@ export default function DashboardPage() {
             >
               Categorías
             </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'settings'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-text-secondary hover:text-text-primary dark:hover:text-text-primary-dark'
+              }`}
+            >
+              Configuración
+            </button>
           </div>
         </div>
       </header>
@@ -192,13 +205,21 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-        ) : (
+        ) : activeTab === 'categories' ? (
           <CategoryManager
             categories={categories}
             onAdd={handleAddCategory}
             onUpdate={handleUpdateCategory}
             onDelete={handleDeleteCategory}
           />
+        ) : (
+          <div className="py-4">
+            <h2 className="text-2xl font-bold mb-8">Configuración del Restaurante</h2>
+            <RestaurantConfigManager
+              config={config}
+              onUpdate={updateConfig}
+            />
+          </div>
         )}
       </div>
     </main>

@@ -3,6 +3,7 @@ import { Playfair_Display, Plus_Jakarta_Sans } from 'next/font/google';
 import '@/styles/globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { ColorProvider } from '@/lib/color-context';
+import { RestaurantConfigProvider } from '@/lib/restaurant-config-context';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -29,7 +30,9 @@ export default function RootLayout({
       <body className={jakarta.className}>
         <AuthProvider>
           <ColorProvider>
-            {children}
+            <RestaurantConfigProvider>
+              {children}
+            </RestaurantConfigProvider>
           </ColorProvider>
         </AuthProvider>
       </body>
