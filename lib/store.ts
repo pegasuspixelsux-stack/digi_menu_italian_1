@@ -1,6 +1,23 @@
 ﻿import { MenuItem, User } from './types';
 
+export interface Category {
+  id: string;
+  name: string;
+  displayName: string;
+  description?: string;
+  createdAt: Date;
+}
+
+// Default categories
+const DEFAULT_CATEGORIES: Category[] = [
+  { id: 'cat-1', name: 'Entradas', displayName: 'Entradas', description: 'Aperitivos y entrada', createdAt: new Date() },
+  { id: 'cat-2', name: 'Platos Fuertes', displayName: 'Platos Fuertes', description: 'Platos principales', createdAt: new Date() },
+  { id: 'cat-3', name: 'Bebidas', displayName: 'Bebidas', description: 'Bebidas variadas', createdAt: new Date() },
+  { id: 'cat-4', name: 'Postres', displayName: 'Postres', description: 'Postres y dulces', createdAt: new Date() },
+];
+
 // Simulated in-memory store (replace with database in production)
+let categories: Category[] = [...DEFAULT_CATEGORIES];
 let menuItems: MenuItem[] = [
   {
     id: '1',
@@ -172,6 +189,7 @@ let currentUser: User | null = {
 };
 
 export const store = {
+  // Menu Items
   getMenuItems: () => [...menuItems],
   addMenuItem: (item: Omit<MenuItem, 'id' | 'createdAt'>) => {
     const newItem: MenuItem = {
@@ -193,6 +211,31 @@ export const store = {
   deleteMenuItem: (id: string) => {
     menuItems = menuItems.filter(item => item.id !== id);
   },
+
+  // Categories
+  getCategories: () => [...categories],
+  addCategory: (category: Omit<Category, 'id' | 'createdAt'>) => {
+    const newCategory: Category = {
+      ...category,
+      id: `cat-${Date.now()}`,
+      createdAt: new Date(),
+    };
+    categories.push(newCategory);
+    return newCategory;
+  },
+  updateCategory: (id: string, updates: Partial<Category>) => {
+    const index = categories.findIndex(cat => cat.id === id);
+    if (index > -1) {
+      categories[index] = { ...categories[index], ...updates };
+      return categories[index];
+    }
+    return null;
+  },
+  deleteCategory: (id: string) => {
+    categories = categories.filter(cat => cat.id !== id);
+  },
+
+  // User
   getCurrentUser: () => currentUser,
   setCurrentUser: (user: User | null) => {
     currentUser = user;

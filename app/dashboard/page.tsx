@@ -4,15 +4,20 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth-context';
-import { store } from '@/lib/store';
+import { store, Category } from '@/lib/store';
 import { MenuItem } from '@/lib/types';
 import { MenuItemForm } from '@/components/dashboard/MenuItemForm';
+import { CategoryManager } from '@/components/dashboard/CategoryManager';
 import Link from 'next/link';
+
+type DashboardTab = 'items' | 'categories';
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<DashboardTab>('items');
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,11 +27,16 @@ export default function DashboardPage() {
       router.push('/login');
     } else {
       loadMenuItems();
+      loadCategories();
     }
   }, [isAuthenticated, router]);
 
   const loadMenuItems = () => {
     setMenuItems(store.getMenuItems());
+  };
+
+  const loadCategories = () => {
+    setCategories(store.getCategories());
   };
 
   const handleAddItem = async (data: Omit<MenuItem, 'id' | 'createdAt'>) => {
@@ -55,6 +65,21 @@ export default function DashboardPage() {
     }
   };
 
+  const handleAddCategory = (data: Omit<Category, 'id' | 'createdAt'>) => {
+    store.addCategory(data);
+    loadCategories();
+  };
+
+  const handleUpdateCategory = (id: string, updates: Partial<Category>) => {
+    store.updateCategory(id, updates);
+    loadCategories();
+  };
+
+  const handleDeleteCategory = (id: string) => {
+    store.deleteCategory(id);
+    loadCategories();
+  };
+
   const handleLogout = () => {
     logout();
     router.push('/');
@@ -67,42 +92,69 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-surface dark:bg-surface-dark">
       <header className="border-b border-border dark:border-border-dark sticky top-0 z-40 bg-surface/95 dark:bg-surface-dark/95 backdrop-blur-sm">
-        <div className="container-safe h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-lg font-bold text-accent">
-              digi_menu
-            </Link>
-            <span className="text-sm text-text-secondary">Dashboard</span>
+        <div className="container-safe py-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/" className="text-lg font-bold text-accent">
+                digi_menu
+              </Link>
+              <span className="text-sm text-text-secondary">Panel de Control</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-text-secondary">{user?.email}</span>
+              <motion.button onClick={handleLogout} className="px-4 py-2 rounded-lg text-sm font-medium border border-border" whileTap={{ scale: 0.95 }}>
+                Cerrar Sesión
+              </motion.button>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-text-secondary">{user?.email}</span>
-            <motion.button onClick={handleLogout} className="px-4 py-2 rounded-lg text-sm font-medium border border-border" whileTap={{ scale: 0.95 }}>
-              Sign Out
-            </motion.button>
+
+          {/* Tab Navigation */}
+          <div className="flex gap-2 border-b border-border dark:border-border-dark -mb-4">
+            <button
+              onClick={() => setActiveTab('items')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'items'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-text-secondary hover:text-text-primary dark:hover:text-text-primary-dark'
+              }`}
+            >
+              Elementos del Menú
+            </button>
+            <button
+              onClick={() => setActiveTab('categories')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'categories'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-text-secondary hover:text-text-primary dark:hover:text-text-primary-dark'
+              }`}
+            >
+              Categorías
+            </button>
           </div>
         </div>
       </header>
 
       <div className="container-safe py-12">
+        {activeTab === 'items' ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
-            <div className="card p-6 sticky top-24">
+            <div className="card p-6 sticky top-32">
               {editingItem ? (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Edit Item</h3>
+                  <h3 className="text-lg font-semibold">Editar Elemento</h3>
                   <MenuItemForm initialItem={editingItem} onSubmit={handleUpdateItem} isLoading={isLoading} />
-                  <button onClick={() => setEditingId(null)} className="w-full py-2 rounded-lg text-sm border border-border">Cancel</button>
+                  <button onClick={() => setEditingId(null)} className="w-full py-2 rounded-lg text-sm border border-border">Cancelar</button>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Add Item</h3>
+                  <h3 className="text-lg font-semibold">Agregar Elemento</h3>
                   {isAddingItem ? (
                     <div className="space-y-4">
                       <MenuItemForm onSubmit={handleAddItem} isLoading={isLoading} />
-                      <button onClick={() => setIsAddingItem(false)} className="w-full py-2 rounded-lg text-sm border border-border">Cancel</button>
+                      <button onClick={() => setIsAddingItem(false)} className="w-full py-2 rounded-lg text-sm border border-border">Cancelar</button>
                     </div>
                   ) : (
-                    <button onClick={() => setIsAddingItem(true)} className="w-full button-primary">New Item</button>
+                    <button onClick={() => setIsAddingItem(true)} className="w-full button-primary">+ Agregar Elemento</button>
                   )}
                 </div>
               )}
@@ -111,10 +163,10 @@ export default function DashboardPage() {
 
           <div className="lg:col-span-2">
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">Menu Items ({menuItems.length})</h2>
+              <h2 className="text-2xl font-bold">Elementos del Menú ({menuItems.length})</h2>
               {menuItems.length === 0 ? (
                 <div className="card p-12 text-center">
-                  <p className="text-text-secondary">No items yet. Add your first item.</p>
+                  <p className="text-text-secondary">Sin elementos aún. Agregue el primer elemento.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -126,12 +178,12 @@ export default function DashboardPage() {
                         <p className="text-sm text-text-secondary line-clamp-1">{item.description}</p>
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-lg font-bold text-accent">${item.price.toFixed(2)}</span>
-                          <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">{item.available ? 'Available' : 'Unavailable'}</span>
+                          <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700">{item.available ? 'Disponible' : 'No Disponible'}</span>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => setEditingId(item.id)} className="px-3 py-2 rounded-lg text-sm border border-border">Edit</button>
-                        <button onClick={() => handleDeleteItem(item.id)} className="px-3 py-2 rounded-lg text-sm border border-red-300 text-red-600">Delete</button>
+                        <button onClick={() => setEditingId(item.id)} className="px-3 py-2 rounded-lg text-sm border border-border">Editar</button>
+                        <button onClick={() => handleDeleteItem(item.id)} className="px-3 py-2 rounded-lg text-sm border border-red-300 text-red-600">Eliminar</button>
                       </div>
                     </div>
                   ))}
@@ -140,6 +192,14 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+        ) : (
+          <CategoryManager
+            categories={categories}
+            onAdd={handleAddCategory}
+            onUpdate={handleUpdateCategory}
+            onDelete={handleDeleteCategory}
+          />
+        )}
       </div>
     </main>
   );
