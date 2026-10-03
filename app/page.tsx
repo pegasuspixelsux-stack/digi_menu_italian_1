@@ -121,7 +121,7 @@ export default function Home() {
                   new Map(
                     menuItems.map(item => [item.category || 'Other', item])
                   ).entries()
-                ).map(([category, firstItem], categoryIndex) => {
+                ).map(([category]) => {
                   const categoryItems = menuItems.filter(
                     item => (item.category || 'Other') === category
                   );
