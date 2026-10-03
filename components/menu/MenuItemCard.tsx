@@ -7,10 +7,9 @@ import { QuantitySelector } from './QuantitySelector';
 
 interface MenuItemCardProps {
   item: MenuItem;
-  index?: number;
 }
 
-export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
+export function MenuItemCard({ item }: MenuItemCardProps) {
   const [quantity, setQuantity] = useState(1);
 
   return (
