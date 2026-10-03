@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface dark:bg-surface-dark text-text-primary dark:text-text-primary-dark transition-colors duration-300;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 800;
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    font-weight: 700;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  p {
+    line-height: 1.6;
+    letter-spacing: 0.3px;
+  }
+
+  input, textarea, select {
+    font-family: inherit;
+  }
+}
+
+@layer components {
+  .container-safe {
+    @apply px-6 md:px-8 lg:px-12;
+  }
+
+  .glass {
+    @apply bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10;
+  }
+
+  .card {
+    @apply rounded-xl bg-surface-secondary dark:bg-surface-secondary-dark border border-border dark:border-border-dark transition-all duration-300;
+  }
+
+  .button-primary {
+    @apply px-6 py-3 rounded-lg font-medium bg-accent text-white active:scale-95 transition-transform duration-100;
+  }
+
+  .button-secondary {
+    @apply px-6 py-3 rounded-lg font-medium border border-border dark:border-border-dark text-text-primary dark:text-text-primary-dark hover:bg-surface-secondary dark:hover:bg-surface-secondary-dark active:scale-95 transition-all duration-100;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
