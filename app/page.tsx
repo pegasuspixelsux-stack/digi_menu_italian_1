@@ -6,6 +6,7 @@ import { MenuGrid } from '@/components/menu/MenuGrid';
 import { Navigation } from '@/components/nav/Navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useColor, colorValues } from '@/lib/color-context';
+import { useRestaurantConfig } from '@/lib/restaurant-config-context';
 import { ColorSelector } from '@/components/ui/ColorSelector';
 import Link from 'next/link';
 import { MenuItem } from '@/lib/types';
@@ -17,6 +18,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
   const { backgroundColor } = useColor();
+  const { config } = useRestaurantConfig();
 
   useEffect(() => {
     setIsLoading(true);
@@ -35,13 +37,10 @@ export default function Home() {
       <Navigation />
       <section className="relative w-full aspect-square lg:h-[80vh] overflow-hidden">
         <picture>
-          <source media="(min-width: 1024px)" srcSet="/images/hero/hero-desktop.webp" type="image/webp" />
-          <source media="(min-width: 1024px)" srcSet="/images/hero/hero-desktop.jpg" type="image/jpeg" />
-          <source media="(min-width: 768px)" srcSet="/images/hero/hero-tablet.webp" type="image/webp" />
-          <source media="(min-width: 768px)" srcSet="/images/hero/hero-tablet.jpg" type="image/jpeg" />
-          <source srcSet="/images/hero/hero-mobile.webp" type="image/webp" />
+          <source media="(min-width: 1024px)" srcSet={config.heroDesktopUrl} type="image/webp" />
+          <source media="(min-width: 768px)" srcSet={config.heroDesktopUrl.replace('.webp', '-tablet.webp')} type="image/webp" />
           <Image
-            src="/images/hero/hero-mobile.jpg"
+            src={config.heroMobileUrl}
             alt="La Bella Italia - Restaurant Hero"
             fill
             className="object-cover"
@@ -154,7 +153,7 @@ export default function Home() {
         <div className="container-safe space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex flex-col gap-3">
-              <h4 className="text-lg font-bold text-gray-100">La Bella Italia</h4>
+              <h4 className="text-lg font-bold text-gray-100">{config.name}</h4>
               <p className="text-sm text-gray-300">
                 Auténtica cocina italiana con los mejores ingredientes
               </p>
@@ -162,16 +161,16 @@ export default function Home() {
             <div className="flex flex-col gap-3">
               <h4 className="font-semibold text-gray-100">Contacto</h4>
               <div className="space-y-1 text-sm text-gray-300">
-                <p>📍 Calle Principal 123, Madrid</p>
-                <p>📞 +1 (555) 123-4567</p>
-                <p>📧 info@bellaitalia.com</p>
+                <p>📍 {config.address}</p>
+                <p>📞 {config.phone}</p>
+                <p>💬 {config.whatsapp}</p>
               </div>
             </div>
             <div className="flex flex-col gap-3">
               <h4 className="font-semibold text-gray-100">Horarios</h4>
               <div className="space-y-1 text-sm text-gray-300">
-                <p>Lun - Vie: 11:00 - 23:00</p>
-                <p>Sáb - Dom: 12:00 - 00:00</p>
+                <p>Lun - Vie: {config.hoursMonFri}</p>
+                <p>Sáb - Dom: {config.hoursSatSun}</p>
               </div>
             </div>
             <div className="flex flex-col gap-3">
@@ -182,7 +181,7 @@ export default function Home() {
 
           <div className="border-t border-gray-700 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-400">
-              © 2026 La Bella Italia. Todos los derechos reservados.
+              © 2026 {config.name}. Todos los derechos reservados.
             </p>
             <div className="flex gap-4">
               {isAuthenticated && (
