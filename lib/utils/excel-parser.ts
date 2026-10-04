@@ -1,5 +1,3 @@
-import * as XLSX from 'xlsx';
-
 export interface RawMenuRow {
   category?: string;
   itemName?: string;
