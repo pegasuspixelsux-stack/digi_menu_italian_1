@@ -31,8 +31,9 @@ export interface ImportResult {
 
 export function parseExcelFile(file: File): Promise<RawMenuRow[]> {
   return new Promise((resolve, reject) => {
-    if (typeof FileReader === 'undefined') {
-      reject(new Error('FileReader is not available in this environment'));
+    // Verify FileReader is available on client-side
+    if (typeof window === 'undefined' || !('FileReader' in window)) {
+      reject(new Error('FileReader is not available - this must run on the client side'));
       return;
     }
 
@@ -40,8 +41,9 @@ export function parseExcelFile(file: File): Promise<RawMenuRow[]> {
 
     reader.onload = (e) => {
       try {
-        const data = e.target?.result as ArrayBuffer;
-        const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
+        const arrayBuffer = e.target?.result as ArrayBuffer;
+        const data = new Uint8Array(arrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
         const sheetName = workbook.SheetNames[0];
 
         if (!sheetName) {
@@ -61,7 +63,11 @@ export function parseExcelFile(file: File): Promise<RawMenuRow[]> {
       reject(new Error('Failed to read file'));
     };
 
-    reader.readAsArrayBuffer(file);
+    try {
+      reader.readAsArrayBuffer(file);
+    } catch (error) {
+      reject(new Error(`Error reading file: ${error instanceof Error ? error.message : String(error)}`));
+    }
   });
 }
 
