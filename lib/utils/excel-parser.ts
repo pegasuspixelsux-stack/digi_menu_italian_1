@@ -31,18 +31,29 @@ export interface ImportResult {
 
 export function parseExcelFile(file: File): Promise<RawMenuRow[]> {
   return new Promise((resolve, reject) => {
+    if (typeof FileReader === 'undefined') {
+      reject(new Error('FileReader is not available in this environment'));
+      return;
+    }
+
     const reader = new FileReader();
 
     reader.onload = (e) => {
       try {
-        const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: 'array' });
+        const data = e.target?.result as ArrayBuffer;
+        const workbook = XLSX.read(new Uint8Array(data), { type: 'array' });
         const sheetName = workbook.SheetNames[0];
+
+        if (!sheetName) {
+          reject(new Error('No sheets found in workbook'));
+          return;
+        }
+
         const worksheet = workbook.Sheets[sheetName];
         const rows = XLSX.utils.sheet_to_json(worksheet) as RawMenuRow[];
         resolve(rows);
       } catch (error) {
-        reject(new Error(`Failed to parse Excel file: ${error}`));
+        reject(new Error(`Failed to parse Excel file: ${error instanceof Error ? error.message : String(error)}`));
       }
     };
 

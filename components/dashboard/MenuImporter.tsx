@@ -24,23 +24,28 @@ export function MenuImporter() {
       const response = await fetch('/api/import/menu', {
         method: 'POST',
         body: formData,
+        cache: 'no-store',
       });
 
       const data = await response.json();
 
       if (!response.ok) {
         setError(data.error || 'Import failed');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
         return;
       }
 
       setResult(data);
+      // Reset file input on success
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed');
     } finally {
       setIsLoading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     }
   };
 
