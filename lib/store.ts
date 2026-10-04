@@ -16,9 +16,30 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: 'cat-4', name: 'Postres', displayName: 'Postres', description: 'Postres y dulces', createdAt: new Date() },
 ];
 
-// Simulated in-memory store (replace with database in production)
-let categories: Category[] = [...DEFAULT_CATEGORIES];
-let menuItems: MenuItem[] = [
+// Helper: Load from localStorage if available
+const loadFromStorage = <T,>(key: string, fallback: T): T => {
+  if (typeof window === 'undefined') return fallback; // SSR safety
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+// Helper: Save to localStorage
+const saveToStorage = (key: string, data: any) => {
+  if (typeof window === 'undefined') return; // SSR safety
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Failed to save to localStorage:', e);
+  }
+};
+
+// Simulated in-memory store with localStorage persistence
+let categories: Category[] = loadFromStorage('digi_menu_categories', DEFAULT_CATEGORIES);
+let menuItems: MenuItem[] = loadFromStorage('digi_menu_items', [
   {
     id: '1',
     title: 'Bruschetta Caprese',
@@ -179,7 +200,7 @@ let menuItems: MenuItem[] = [
     available: true,
     createdAt: new Date(),
   },
-];
+]);
 
 let currentUser: User | null = {
   id: '1',
@@ -198,18 +219,21 @@ export const store = {
       createdAt: new Date(),
     };
     menuItems.push(newItem);
+    saveToStorage('digi_menu_items', menuItems);
     return newItem;
   },
   updateMenuItem: (id: string, updates: Partial<MenuItem>) => {
     const index = menuItems.findIndex(item => item.id === id);
     if (index > -1) {
       menuItems[index] = { ...menuItems[index], ...updates };
+      saveToStorage('digi_menu_items', menuItems);
       return menuItems[index];
     }
     return null;
   },
   deleteMenuItem: (id: string) => {
     menuItems = menuItems.filter(item => item.id !== id);
+    saveToStorage('digi_menu_items', menuItems);
   },
 
   // Categories
@@ -221,12 +245,14 @@ export const store = {
       createdAt: new Date(),
     };
     categories.push(newCategory);
+    saveToStorage('digi_menu_categories', categories);
     return newCategory;
   },
   updateCategory: (id: string, updates: Partial<Category>) => {
     const index = categories.findIndex(cat => cat.id === id);
     if (index > -1) {
       categories[index] = { ...categories[index], ...updates };
+      saveToStorage('digi_menu_categories', categories);
       return categories[index];
     }
     return null;
