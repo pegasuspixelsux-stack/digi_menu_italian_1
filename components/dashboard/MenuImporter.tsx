@@ -40,6 +40,10 @@ export function MenuImporter() {
         return;
       }
 
+      // Log column headers for debugging
+      console.log('📋 Excel columns found:', Object.keys(rows[0] || {}));
+      console.log('📄 First row sample:', rows[0]);
+
       // Send parsed data to API
       const response = await fetch('/api/import/menu', {
         method: 'POST',
