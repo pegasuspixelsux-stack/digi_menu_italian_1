@@ -111,8 +111,11 @@ export function MenuImporter() {
       }
 
       // Save imported items and categories to client store
+      console.log('📥 Received from API:', { itemsCount: data.items?.length, items: data.items });
       if (data.items && Array.isArray(data.items)) {
+        console.log(`💾 Saving ${data.items.length} items to client store...`);
         data.items.forEach((item: any) => {
+          console.log(`  → Adding: ${item.title} (${item.category})`);
           store.addMenuItem({
             title: item.title,
             description: item.description,
@@ -122,6 +125,7 @@ export function MenuImporter() {
             available: item.available !== false,
           });
         });
+        console.log('✅ Items saved to store. Current total:', store.getMenuItems().length);
       }
 
       setResult(data);

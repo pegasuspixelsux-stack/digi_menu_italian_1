@@ -32,6 +32,7 @@ const saveToStorage = (key: string, data: any) => {
   if (typeof window === 'undefined') return; // SSR safety
   try {
     localStorage.setItem(key, JSON.stringify(data));
+    console.log(`💾 Saved to localStorage: ${key} (${data.length} items)`);
   } catch (e) {
     console.warn('Failed to save to localStorage:', e);
   }
