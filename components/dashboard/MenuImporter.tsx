@@ -44,7 +44,7 @@ export function MenuImporter() {
 
       console.log('📋 Total rows:', rows.length);
       console.log('📋 First 3 rows:');
-      rows.slice(0, 3).forEach((row, i) => {
+      rows.slice(0, 3).forEach((row: any, i) => {
         const keys = Object.keys(row).filter(k => row[k]); // Only non-empty values
         console.log(`  Row ${i}:`, keys.join(', '));
       });
@@ -56,7 +56,7 @@ export function MenuImporter() {
 
       // Strategy: Look for rows that have real content (not just __EMPTY)
       for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
+        const row = rows[i] as any;
         const actualKeys = Object.keys(row).filter(k => !k.startsWith('__EMPTY') && row[k]);
 
         if (actualKeys.length === 0) continue; // Skip empty rows
