@@ -41,8 +41,37 @@ export function MenuImporter() {
       }
 
       // Log column headers for debugging
-      console.log('📋 Excel columns found:', Object.keys(rows[0] || {}));
+      console.log('📋 Raw Excel rows:', rows.length);
+      console.log('📋 First row columns:', Object.keys(rows[0] || {}));
       console.log('📄 First row sample:', rows[0]);
+
+      // Find the actual data by detecting rows with expected column patterns
+      const expectedColumns = ['category', 'categoría', 'item', 'nombre', 'name', 'price', 'precio', 'description', 'descripción'];
+      let dataStartRow = 0;
+
+      for (let i = 0; i < Math.min(rows.length, 10); i++) {
+        const keys = Object.keys(rows[i] || {});
+        const lowerKeys = keys.map(k => k.toLowerCase().replace(/\s+/g, ''));
+        const matchCount = lowerKeys.filter(k =>
+          expectedColumns.some(exp => k.includes(exp) || exp.includes(k))
+        ).length;
+
+        console.log(`Row ${i}: ${keys.length} columns, ${matchCount} match expected patterns`);
+
+        if (matchCount >= 2) { // If we find at least 2 expected columns, this is our header row
+          dataStartRow = i;
+          console.log(`✅ Found data headers at row ${i}:`, keys);
+          break;
+        }
+      }
+
+      // Use only rows from the detected data start
+      const dataRows = rows.slice(dataStartRow);
+
+      if (dataRows.length === 0) {
+        setError('No valid data found in Excel file');
+        return;
+      }
 
       // Send parsed data to API
       const response = await fetch('/api/import/menu', {
@@ -50,7 +79,7 @@ export function MenuImporter() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items: rows }),
+        body: JSON.stringify({ items: dataRows }),
         cache: 'no-store',
       });
 
