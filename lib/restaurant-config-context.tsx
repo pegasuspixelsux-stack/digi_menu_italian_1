@@ -15,11 +15,11 @@ export interface RestaurantConfig {
 }
 
 const DEFAULT_CONFIG: RestaurantConfig = {
-  name: 'La Bella Italia',
-  slogan: 'Auténtica cocina italiana',
+  name: 'El Amigo Food truck',
+  slogan: 'Comida Mexicana Auténtica',
   phone: '+1 (555) 123-4567',
   whatsapp: '+1 (555) 123-4567',
-  address: 'Calle Principal 123, Madrid',
+  address: '307 N Frederick ave ,Gaithersburg MD',
   hoursMonFri: '11:00 - 23:00',
   hoursSatSun: '12:00 - 00:00',
   heroDesktopUrl: '/images/hero/hero-desktop.webp',
