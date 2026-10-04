@@ -32,6 +32,9 @@ export function MenuImporter() {
         return;
       }
 
+      // Log all available sheets
+      console.log('📚 Available sheets:', workbook.SheetNames);
+
       const worksheet = workbook.Sheets[sheetName];
 
       // Parse with raw cells to handle merged cells better
