@@ -56,12 +56,17 @@ export function MenuImporter() {
           expectedColumns.some(exp => k.includes(exp) || exp.includes(k))
         ).length;
 
-        console.log(`Row ${i}: ${keys.length} columns, ${matchCount} match expected patterns`);
+        console.log(`Row ${i}: columns=[${keys.join(', ')}], ${matchCount} matches`);
 
         if (matchCount >= 2) { // If we find at least 2 expected columns, this is our header row
           headerRowIndex = i;
           console.log(`✅ Found data headers at row ${i}:`, keys);
           break;
+        }
+
+        // If we have 4 columns but no matches, log the actual column names for debugging
+        if (keys.length === 4 && matchCount === 0 && i <= 3) {
+          console.warn('❌ Row has 4 columns but no matches. Column names:', keys);
         }
       }
 
