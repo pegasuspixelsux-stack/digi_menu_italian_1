@@ -1,39 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { parseExcelFile, normalizeRows, groupByCategory, ImportResult } from '@/lib/utils/excel-parser';
+import { normalizeRows, groupByCategory, RawMenuRow, ImportResult } from '@/lib/utils/excel-parser';
 import { store } from '@/lib/store';
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File | null;
+    const body = await request.json();
+    const items = body.items as RawMenuRow[] | null;
 
-    if (!file) {
+    if (!items || !Array.isArray(items)) {
       return NextResponse.json(
-        { error: 'No file provided' },
+        { error: 'No items provided or items is not an array' },
         { status: 400 }
       );
     }
 
-    if (!file.name.match(/\.(xlsx?|xls)$/i)) {
-      return NextResponse.json(
-        { error: 'File must be an Excel file (.xlsx, .xls)' },
-        { status: 400 }
-      );
-    }
-
-    // Parse Excel file
-    const rows = await parseExcelFile(file);
-    const totalRows = rows.length;
+    const totalRows = items.length;
 
     if (totalRows === 0) {
       return NextResponse.json(
-        { error: 'Excel file is empty' },
+        { error: 'No items to import' },
         { status: 400 }
       );
     }
 
     // Normalize and validate rows
-    const normalizedItems = normalizeRows(rows);
+    const normalizedItems = normalizeRows(items);
     const skippedRows = totalRows - normalizedItems.length;
 
     // Group by category
@@ -75,7 +66,7 @@ export async function POST(request: NextRequest) {
             description: item.description,
             price: item.price,
             category: item.category,
-            imageUrl: '', // Empty initially, can be added later
+            imageUrl: '',
             available: item.available,
           });
           importedItems.push(importedItem);

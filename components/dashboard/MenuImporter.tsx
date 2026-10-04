@@ -18,12 +18,35 @@ export function MenuImporter() {
     setResult(null);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      // Parse Excel file on client-side using FileReader
+      const arrayBuffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(arrayBuffer);
 
+      // Use dynamic import to avoid SSR issues
+      const XLSX = await import('xlsx');
+      const workbook = XLSX.read(uint8Array, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+
+      if (!sheetName) {
+        setError('No sheets found in Excel file');
+        return;
+      }
+
+      const worksheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet);
+
+      if (rows.length === 0) {
+        setError('Excel file is empty');
+        return;
+      }
+
+      // Send parsed data to API
       const response = await fetch('/api/import/menu', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items: rows }),
         cache: 'no-store',
       });
 
