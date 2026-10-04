@@ -134,6 +134,25 @@ export function RestaurantConfigManager({
           </div>
         </div>
 
+        {/* Hero Content Section */}
+        <div className="card p-6">
+          <h3 className="text-lg font-semibold mb-6">Sección Hero</h3>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Eyebrow (Subtítulo)</label>
+              <input
+                type="text"
+                value={formData.heroEyebrow || ''}
+                onChange={(e) => handleChange('heroEyebrow', e.target.value)}
+                placeholder="Ej: Bienvenido a, Descubre lo mejor, etc."
+                className="w-full px-4 py-2 rounded-lg border border-border bg-surface dark:bg-surface-dark"
+              />
+              <p className="text-xs text-text-secondary mt-2">Texto pequeño que aparece sobre el título en la sección hero (opcional)</p>
+            </div>
+          </div>
+        </div>
+
         {/* Hero Images Section */}
         <div className="card p-6">
           <h3 className="text-lg font-semibold mb-6">Imágenes Hero</h3>

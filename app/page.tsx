@@ -51,6 +51,11 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/35" />
         <div className="absolute inset-0 flex items-center justify-center text-center px-6 z-10">
           <div className="space-y-3">
+            {config.heroEyebrow && (
+              <p className="text-sm md:text-base text-gray-300 uppercase tracking-widest">
+                {config.heroEyebrow}
+              </p>
+            )}
             <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight">
               {config.name}
             </h1>

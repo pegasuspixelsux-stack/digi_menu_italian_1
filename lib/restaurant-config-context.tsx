@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState } from 'react';
 export interface RestaurantConfig {
   name: string;
   slogan: string;
+  heroEyebrow?: string;
   phone: string;
   whatsapp: string;
   address: string;
@@ -17,6 +18,7 @@ export interface RestaurantConfig {
 const DEFAULT_CONFIG: RestaurantConfig = {
   name: 'El Amigo Food truck',
   slogan: 'Comida Mexicana Auténtica',
+  heroEyebrow: '',
   phone: '+1 (555) 123-4567',
   whatsapp: '+1 (555) 123-4567',
   address: '307 N Frederick ave ,Gaithersburg MD',
