@@ -28,32 +28,39 @@ export interface ImportResult {
 }
 
 // Helper to find value by flexible key matching
-function findValueByKey(row: RawMenuRow, searchTerms: string[]): string {
+function findValueByKey(row: RawMenuRow, searchTerms: string[], fieldName?: string): string {
   for (const key of Object.keys(row)) {
     const lowerKey = key.toLowerCase().replace(/\s+/g, '');
     for (const term of searchTerms) {
       const lowerTerm = term.toLowerCase().replace(/\s+/g, '');
       if (lowerKey.includes(lowerTerm) || lowerTerm.includes(lowerKey)) {
-        return (row[key] || '').toString().trim();
+        const value = (row[key] || '').toString().trim();
+        if (fieldName && !value) {
+          console.warn(`[Excel Parser] ${fieldName} column "${key}" found but value is empty for row:`, row);
+        }
+        return value;
       }
     }
+  }
+  if (fieldName) {
+    console.warn(`[Excel Parser] Could not find ${fieldName} column. Available keys:`, Object.keys(row), 'Search terms:', searchTerms);
   }
   return '';
 }
 
 export function normalizeMenuRow(row: RawMenuRow): ParsedMenuItem | null {
   // Extract category - handle variations
-  const category = findValueByKey(row, ['category', 'categoría', 'categor', 'tipo']) || '';
+  const category = findValueByKey(row, ['category', 'categoría', 'categor', 'tipo'], 'category') || '';
 
   // Extract title - handle variations
-  const title = findValueByKey(row, ['item', 'nombre', 'name', 'title', 'producto', 'plato', 'dish']) || '';
+  const title = findValueByKey(row, ['item', 'nombre', 'name', 'title', 'producto', 'plato', 'dish'], 'title') || '';
 
   // Extract description
-  const description = findValueByKey(row, ['description', 'descripción', 'desc', 'detail', 'detalles', 'notas']) || '';
+  const description = findValueByKey(row, ['description', 'descripción', 'desc', 'detail', 'detalles', 'notas'], 'description') || '';
 
   // Extract and parse price
   let price = 0;
-  const rawPrice = findValueByKey(row, ['price', 'precio', 'cost', 'valor', 'monto', 'tarifa']) || '';
+  const rawPrice = findValueByKey(row, ['price', 'precio', 'cost', 'valor', 'monto', 'tarifa'], 'price') || '';
   if (rawPrice) {
     const priceStr = rawPrice.toString().replace(/[$,€¥₹\s]/g, '').replace(',', '.').trim();
     const parsed = parseFloat(priceStr);
@@ -64,7 +71,7 @@ export function normalizeMenuRow(row: RawMenuRow): ParsedMenuItem | null {
 
   // Extract available status
   let available = true;
-  const rawAvailable = findValueByKey(row, ['available', 'disponible', 'active', 'activo', 'status']);
+  const rawAvailable = findValueByKey(row, ['available', 'disponible', 'active', 'activo', 'status'], 'available');
   if (rawAvailable) {
     const availStr = rawAvailable.toString().toLowerCase();
     available = availStr !== 'false' && availStr !== '0' && availStr !== 'no' && availStr !== 'n' && availStr !== 'false';
@@ -72,6 +79,8 @@ export function normalizeMenuRow(row: RawMenuRow): ParsedMenuItem | null {
 
   // Validate required fields
   if (!title.trim() || !category.trim()) {
+    if (!title.trim()) console.warn('[Excel Parser] Row skipped: missing title', row);
+    if (!category.trim()) console.warn('[Excel Parser] Row skipped: missing category', row);
     return null;
   }
 
