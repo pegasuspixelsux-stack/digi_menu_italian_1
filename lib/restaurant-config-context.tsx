@@ -37,7 +37,11 @@ export function RestaurantConfigProvider({ children }: { children: React.ReactNo
   const [config, setConfig] = useState<RestaurantConfig>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('restaurantConfig');
-      return saved ? JSON.parse(saved) : DEFAULT_CONFIG;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Merge with defaults to ensure all required fields exist (handles migration from old configs)
+        return { ...DEFAULT_CONFIG, ...parsed };
+      }
     }
     return DEFAULT_CONFIG;
   });
