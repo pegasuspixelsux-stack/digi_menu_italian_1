@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { ImportResult } from '@/lib/utils/excel-parser';
+import { store } from '@/lib/store';
 
 export function MenuImporter() {
   const [isLoading, setIsLoading] = useState(false);
@@ -109,6 +110,20 @@ export function MenuImporter() {
         return;
       }
 
+      // Save imported items and categories to client store
+      if (data.items && Array.isArray(data.items)) {
+        data.items.forEach((item: any) => {
+          store.addMenuItem({
+            title: item.title,
+            description: item.description,
+            price: item.price,
+            category: item.category,
+            imageUrl: item.imageUrl || '',
+            available: item.available !== false,
+          });
+        });
+      }
+
       setResult(data);
       // Reset file input on success
       if (fileInputRef.current) {
@@ -162,6 +177,12 @@ export function MenuImporter() {
                   <p className="font-semibold text-green-900 dark:text-green-100">
                     {result.summary}
                   </p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  >
+                    Ver Artículos Importados →
+                  </button>
                   <div className="mt-2 space-y-1 text-sm text-green-800 dark:text-green-200">
                     <p>📊 Total de filas procesadas: {result.totalRows}</p>
                     <p>✅ Artículos importados: {result.itemsImported}</p>

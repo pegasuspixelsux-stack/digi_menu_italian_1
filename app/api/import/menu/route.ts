@@ -86,7 +86,11 @@ export async function POST(request: NextRequest) {
       summary: `✅ Importación completada: ${importedItems.length} artículos en ${itemsByCategory.size} categorías${categoriesCreated > 0 ? ` (${categoriesCreated} nuevas)` : ''}${skippedRows > 0 ? `. ${skippedRows} filas omitidas por datos inválidos` : ''}`,
     };
 
-    return NextResponse.json(result);
+    return NextResponse.json({
+      ...result,
+      items: importedItems,
+      categories: Array.from(itemsByCategory.keys()),
+    });
   } catch (error) {
     console.error('Import error:', error);
     return NextResponse.json(
