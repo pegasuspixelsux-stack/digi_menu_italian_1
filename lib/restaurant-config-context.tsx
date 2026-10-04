@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState } from 'react';
 
 export interface RestaurantConfig {
   name: string;
+  slogan: string;
   phone: string;
   whatsapp: string;
   address: string;
@@ -15,6 +16,7 @@ export interface RestaurantConfig {
 
 const DEFAULT_CONFIG: RestaurantConfig = {
   name: 'La Bella Italia',
+  slogan: 'Auténtica cocina italiana',
   phone: '+1 (555) 123-4567',
   whatsapp: '+1 (555) 123-4567',
   address: 'Calle Principal 123, Madrid',

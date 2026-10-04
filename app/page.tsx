@@ -52,10 +52,10 @@ export default function Home() {
         <div className="absolute inset-0 flex items-center justify-center text-center px-6 z-10">
           <div className="space-y-3">
             <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight">
-              Menú Digital
+              {config.name}
             </h1>
             <p className="text-base md:text-lg text-gray-200 max-w-xl mx-auto">
-              Explora nuestras delicias culinarias
+              {config.slogan}
             </p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function Home() {
             <div className="flex flex-col gap-3">
               <h4 className="text-lg font-bold text-gray-100">{config.name}</h4>
               <p className="text-sm text-gray-300">
-                Auténtica cocina italiana con los mejores ingredientes
+                {config.slogan}
               </p>
             </div>
             <div className="flex flex-col gap-3">

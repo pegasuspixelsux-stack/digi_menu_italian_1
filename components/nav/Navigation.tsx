@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import { useRestaurantConfig } from '@/lib/restaurant-config-context';
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+  const { config } = useRestaurantConfig();
 
   const isRestaurantOpen = () => {
     const now = new Date();
@@ -25,9 +27,14 @@ export function Navigation() {
     <nav className="bg-black text-gray-100 py-4 border-b border-gray-800">
       <div className="container-safe flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-xl font-bold text-gray-100">
-            La Bella Italia
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/" className="text-xl font-bold text-gray-100">
+              {config.name}
+            </Link>
+            <span className="text-sm text-gray-400">
+              {config.slogan}
+            </span>
+          </div>
 
           <div className="hidden md:flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
@@ -35,9 +42,17 @@ export function Navigation() {
               <span>{open ? 'Abierto' : 'Cerrado'}</span>
             </div>
             <div className="text-gray-400">
-              Lun-Vie: 11:00-23:00 | Sáb-Dom: 12:00-00:00
+              {config.hoursMonFri} | {config.hoursSatSun}
             </div>
           </div>
+        </div>
+
+        <div className="hidden md:flex items-center gap-4">
+          {isAuthenticated && (
+            <Link href="/dashboard" className="text-sm px-3 py-1 rounded text-gray-100 hover:bg-gray-900 transition-colors">
+              Panel
+            </Link>
+          )}
         </div>
 
         <button
@@ -57,8 +72,8 @@ export function Navigation() {
             <span>{open ? 'Abierto' : 'Cerrado'}</span>
           </div>
           <div className="text-xs text-gray-400 px-4">
-            <p>Lun-Vie: 11:00-23:00</p>
-            <p>Sáb-Dom: 12:00-00:00</p>
+            <p>{config.hoursMonFri}</p>
+            <p>{config.hoursSatSun}</p>
           </div>
           {isAuthenticated && (
             <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-100 hover:bg-gray-900">
