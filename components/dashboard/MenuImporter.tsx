@@ -33,52 +33,53 @@ export function MenuImporter() {
       }
 
       const worksheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(worksheet);
+
+      // Parse with raw cells to handle merged cells better
+      const rows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
       if (rows.length === 0) {
         setError('Excel file is empty');
         return;
       }
 
-      // Log column headers for debugging
-      console.log('📋 Raw Excel rows:', rows.length);
-      console.log('📋 First row columns:', Object.keys(rows[0] || {}));
-      console.log('📄 First row sample:', rows[0]);
-
-      // Find the actual data by detecting rows with expected column patterns
-      const expectedColumns = ['category', 'categoría', 'item', 'nombre', 'name', 'price', 'precio', 'description', 'descripción'];
-      let headerRowIndex = -1;
-
-      // Filter out rows with __EMPTY columns (merged cell artifacts)
-      const validRows = rows.filter((row, idx) => {
-        const keys = Object.keys(row || {});
-        const hasEmptyColumns = keys.some(k => k.startsWith('__EMPTY'));
-        if (hasEmptyColumns) {
-          console.log(`Row ${idx}: Skipped (merged cells detected)`);
-        }
-        return !hasEmptyColumns;
+      console.log('📋 Total rows:', rows.length);
+      console.log('📋 First 3 rows:');
+      rows.slice(0, 3).forEach((row, i) => {
+        const keys = Object.keys(row).filter(k => row[k]); // Only non-empty values
+        console.log(`  Row ${i}:`, keys.join(', '));
       });
 
-      console.log(`Filtered: ${validRows.length} valid rows (removed ${rows.length - validRows.length} merged cell rows)`);
+      // Look for actual data by finding rows with content (ignoring merged cell artifacts)
+      const expectedColumns = ['category', 'categoría', 'item', 'nombre', 'name', 'price', 'precio', 'description', 'descripción'];
+      let headerRowIndex = -1;
+      let dataRows = [];
 
-      for (let i = 0; i < Math.min(validRows.length, 10); i++) {
-        const keys = Object.keys(validRows[i] || {});
-        const lowerKeys = keys.map(k => k.toLowerCase().replace(/\s+/g, ''));
+      // Strategy: Look for rows that have real content (not just __EMPTY)
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const actualKeys = Object.keys(row).filter(k => !k.startsWith('__EMPTY') && row[k]);
+
+        if (actualKeys.length === 0) continue; // Skip empty rows
+
+        const lowerKeys = actualKeys.map(k => k.toLowerCase().replace(/\s+/g, ''));
         const matchCount = lowerKeys.filter(k =>
           expectedColumns.some(exp => k.includes(exp) || exp.includes(k))
         ).length;
 
-        console.log(`Row ${i}: columns=[${keys.join(', ')}], ${matchCount} matches`);
-
-        if (matchCount >= 2) { // If we find at least 2 expected columns, this is our header row
+        if (matchCount >= 2 && headerRowIndex === -1) {
+          // Found header row
           headerRowIndex = i;
-          console.log(`✅ Found data headers at row ${i}:`, keys);
+          console.log(`✅ Found headers at row ${i}:`, actualKeys);
+          dataRows = rows.slice(i + 1);
           break;
         }
       }
 
-      // Skip the header row itself
-      const dataRows = headerRowIndex >= 0 ? validRows.slice(headerRowIndex + 1) : validRows;
+      // If no header found, use all rows from row 2+ (skip title)
+      if (headerRowIndex === -1) {
+        console.warn('⚠️ Headers not found, using rows starting from row 2');
+        dataRows = rows.slice(Math.min(2, rows.length));
+      }
 
       if (dataRows.length === 0) {
         setError('No valid data found in Excel file');
