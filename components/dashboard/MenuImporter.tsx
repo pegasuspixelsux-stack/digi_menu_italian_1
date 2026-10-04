@@ -52,7 +52,7 @@ export function MenuImporter() {
       // Look for actual data by finding rows with content (ignoring merged cell artifacts)
       const expectedColumns = ['category', 'categoría', 'item', 'nombre', 'name', 'price', 'precio', 'description', 'descripción'];
       let headerRowIndex = -1;
-      let dataRows = [];
+      let dataRows: any[] = [];
 
       // Strategy: Look for rows that have real content (not just __EMPTY)
       for (let i = 0; i < rows.length; i++) {
