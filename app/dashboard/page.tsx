@@ -10,9 +10,10 @@ import { MenuItem } from '@/lib/types';
 import { MenuItemForm } from '@/components/dashboard/MenuItemForm';
 import { CategoryManager } from '@/components/dashboard/CategoryManager';
 import { RestaurantConfigManager } from '@/components/dashboard/RestaurantConfigManager';
+import { MenuImporter } from '@/components/dashboard/MenuImporter';
 import Link from 'next/link';
 
-type DashboardTab = 'items' | 'categories' | 'settings';
+type DashboardTab = 'items' | 'categories' | 'settings' | 'import';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -143,6 +144,16 @@ export default function DashboardPage() {
             >
               Configuración
             </button>
+            <button
+              onClick={() => setActiveTab('import')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'import'
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-text-secondary hover:text-text-primary dark:hover:text-text-primary-dark'
+              }`}
+            >
+              Importar Menú
+            </button>
           </div>
         </div>
       </header>
@@ -212,13 +223,18 @@ export default function DashboardPage() {
             onUpdate={handleUpdateCategory}
             onDelete={handleDeleteCategory}
           />
-        ) : (
+        ) : activeTab === 'settings' ? (
           <div className="py-4">
             <h2 className="text-2xl font-bold mb-8">Configuración del Restaurante</h2>
             <RestaurantConfigManager
               config={config}
               onUpdate={updateConfig}
             />
+          </div>
+        ) : (
+          <div className="py-4">
+            <h2 className="text-2xl font-bold mb-8">Importar Menú desde Excel</h2>
+            <MenuImporter />
           </div>
         )}
       </div>
