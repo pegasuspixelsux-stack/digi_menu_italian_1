@@ -50,6 +50,18 @@ export function RestaurantConfigManager({
                 className="w-full px-4 py-2 rounded-lg border border-border bg-surface dark:bg-surface-dark"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Eslogan</label>
+              <input
+                type="text"
+                value={formData.slogan}
+                onChange={(e) => handleChange('slogan', e.target.value)}
+                placeholder="Auténtica cocina italiana"
+                className="w-full px-4 py-2 rounded-lg border border-border bg-surface dark:bg-surface-dark"
+              />
+              <p className="text-xs text-text-secondary mt-2">Se mostrará junto al nombre en la navegación y en la sección hero</p>
+            </div>
           </div>
         </div>
 
@@ -178,6 +190,7 @@ export function RestaurantConfigManager({
           <div>
             <h4 className="text-sm font-medium text-text-secondary mb-2">Nombre del Restaurante</h4>
             <p className="text-2xl font-bold text-accent">{formData.name}</p>
+            <p className="text-sm text-text-secondary mt-1">{formData.slogan}</p>
           </div>
 
           <div className="pt-4 border-t border-border dark:border-border-dark">
