@@ -47,7 +47,7 @@ export function MenuImporter() {
 
       // Find the actual data by detecting rows with expected column patterns
       const expectedColumns = ['category', 'categoría', 'item', 'nombre', 'name', 'price', 'precio', 'description', 'descripción'];
-      let dataStartRow = 0;
+      let headerRowIndex = -1;
 
       for (let i = 0; i < Math.min(rows.length, 10); i++) {
         const keys = Object.keys(rows[i] || {});
@@ -59,14 +59,14 @@ export function MenuImporter() {
         console.log(`Row ${i}: ${keys.length} columns, ${matchCount} match expected patterns`);
 
         if (matchCount >= 2) { // If we find at least 2 expected columns, this is our header row
-          dataStartRow = i;
+          headerRowIndex = i;
           console.log(`✅ Found data headers at row ${i}:`, keys);
           break;
         }
       }
 
-      // Use only rows from the detected data start
-      const dataRows = rows.slice(dataStartRow);
+      // Skip metadata rows AND the header row itself
+      const dataRows = headerRowIndex >= 0 ? rows.slice(headerRowIndex + 1) : rows;
 
       if (dataRows.length === 0) {
         setError('No valid data found in Excel file');
