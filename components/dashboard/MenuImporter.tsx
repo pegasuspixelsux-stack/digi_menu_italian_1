@@ -49,8 +49,20 @@ export function MenuImporter() {
       const expectedColumns = ['category', 'categoría', 'item', 'nombre', 'name', 'price', 'precio', 'description', 'descripción'];
       let headerRowIndex = -1;
 
-      for (let i = 0; i < Math.min(rows.length, 10); i++) {
-        const keys = Object.keys(rows[i] || {});
+      // Filter out rows with __EMPTY columns (merged cell artifacts)
+      const validRows = rows.filter((row, idx) => {
+        const keys = Object.keys(row || {});
+        const hasEmptyColumns = keys.some(k => k.startsWith('__EMPTY'));
+        if (hasEmptyColumns) {
+          console.log(`Row ${idx}: Skipped (merged cells detected)`);
+        }
+        return !hasEmptyColumns;
+      });
+
+      console.log(`Filtered: ${validRows.length} valid rows (removed ${rows.length - validRows.length} merged cell rows)`);
+
+      for (let i = 0; i < Math.min(validRows.length, 10); i++) {
+        const keys = Object.keys(validRows[i] || {});
         const lowerKeys = keys.map(k => k.toLowerCase().replace(/\s+/g, ''));
         const matchCount = lowerKeys.filter(k =>
           expectedColumns.some(exp => k.includes(exp) || exp.includes(k))
@@ -63,15 +75,10 @@ export function MenuImporter() {
           console.log(`✅ Found data headers at row ${i}:`, keys);
           break;
         }
-
-        // If we have 4 columns but no matches, log the actual column names for debugging
-        if (keys.length === 4 && matchCount === 0 && i <= 3) {
-          console.warn('❌ Row has 4 columns but no matches. Column names:', keys);
-        }
       }
 
-      // Skip metadata rows AND the header row itself
-      const dataRows = headerRowIndex >= 0 ? rows.slice(headerRowIndex + 1) : rows;
+      // Skip the header row itself
+      const dataRows = headerRowIndex >= 0 ? validRows.slice(headerRowIndex + 1) : validRows;
 
       if (dataRows.length === 0) {
         setError('No valid data found in Excel file');
